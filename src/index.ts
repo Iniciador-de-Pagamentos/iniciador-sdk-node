@@ -1,11 +1,13 @@
-import fetch from 'node-fetch'
-
-import { eres } from './utils/eres'
+import fetch, { Response } from 'node-fetch'
+import { AuthInterfaceOutput, AuthOutput } from './types/auth'
+import { PaymentInitiationPayload, PaymentStatusPayload } from './types/payments'
 
 export class Iniciador {
   private clientId: string
   private clientSecret: string
   private environment: string
+
+  private paymentPayload: object | PaymentInitiationPayload
 
   constructor({
     clientId,
@@ -14,11 +16,12 @@ export class Iniciador {
   }: {
     clientId: string
     clientSecret: string
-    environment: string
+    environment: 'dev' | 'sandbox' | 'staging'
   }) {
     this.clientId = clientId
     this.clientSecret = clientSecret
     this.environment = this.setEnviroment(environment)
+    this.paymentPayload = {}
   }
 
   private setEnviroment = (environment: string) => {
@@ -30,77 +33,69 @@ export class Iniciador {
       case 'staging':
         return 'https://consumer.staging.inic.dev/v1'
       default:
-        throw new Error('Insert enviroment variable.')
+        throw new Error('Something went wrong, verify enviroment value.')
     }
   }
 
-  async auth() {
-    const [error, response] = await eres<any>(
-      fetch(`${this.environment}/auth`, {
-        method: 'POST',
-        body: JSON.stringify({
-          clientId: this.clientId,
-          clientSecret: this.clientSecret,
-        }),
-      }),
-    )
-
-    if (error) throw new Error('Falha na autenticação')
-
-    const data = await response.json()
-
-    return data
+  private handleResponse<T>(response: Response) {
+    return response.json() as Promise<T>
   }
 
-  async authInterface() {
-    const [error, response] = await eres<any>(
-      fetch(`${this.environment}/auth/interface`, {
-        method: 'POST',
-        body: JSON.stringify({
-          clientId: this.clientId,
-          clientSecret: this.clientSecret,
-        }),
+  async auth() {
+    return fetch(`${this.environment}/auth`, {
+      method: 'POST',
+      body: JSON.stringify({
+        clientId: this.clientId,
+        clientSecret: this.clientSecret,
       }),
-    )
+      headers: { 'Content-Type': 'application/json' },
+    }).then((response) => this.handleResponse<AuthOutput>(response))
+  }
 
-    if (error) throw new Error('Falha na autenticação')
+  async authInterface(payment?: PaymentInitiationPayload) {
+    return fetch(`${this.environment}/auth/interface`, {
+      method: 'POST',
+      body: JSON.stringify({
+        clientId: this.clientId,
+        clientSecret: this.clientSecret,
+        payment,
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    }).then((response) => this.handleResponse<AuthInterfaceOutput>(response))
+  }
 
-    const data = await response.json()
+  async participants({ accessToken }: { accessToken: string }) {
+    return fetch(`${this.environment}/participants`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }).then((response) => this.handleResponse<AuthInterfaceOutput>(response))
+  }
 
-    return data
+  save(payment?: PaymentInitiationPayload) {
+    this.paymentPayload = Object.assign(this.paymentPayload, payment)
   }
 
   payment({ accessToken }: { accessToken: string }) {
     return {
-      get: async () => {
-        const [error, response] = await eres<any>(
-          fetch(`${this.environment}/payment`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }),
-        )
-
-        if (error) throw new Error('Falha ao obter informações de pagamento')
-
-        const data = await response.json()
-
-        return data
+      get: async (paymentId: string) => {
+        return fetch(`${this.environment}/payments/${paymentId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }).then((response) => this.handleResponse<PaymentInitiationPayload>(response))
       },
-      status: async () => {
-        const [error, response] = await eres<any>(
-          fetch(`${this.environment}/paymen/statust`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }),
-        )
+      status: async (paymentId: string) => {
+        return fetch(`${this.environment}/payments/${paymentId}/status`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }).then((response) => this.handleResponse<PaymentStatusPayload>(response))
+      },
+      send: async () => {
+        const isPaymentPayloadEmpty = Object.keys(this.paymentPayload).length === 0
+        if (isPaymentPayloadEmpty)
+          throw new Error('Something went wrong, try to fill up payment payload with save method.')
 
-        if (error) throw new Error('Falha ao obter o status do pagamento')
-
-        const data = await response.json()
-
-        return data
+        return fetch(`${this.environment}/payments`, {
+          method: 'POST',
+          body: JSON.stringify(this.paymentPayload),
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+        }).then((response) => this.handleResponse<PaymentStatusPayload>(response))
       },
     }
   }
