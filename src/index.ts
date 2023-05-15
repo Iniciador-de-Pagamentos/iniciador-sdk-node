@@ -1,5 +1,6 @@
 import fetch from 'node-fetch'
-import { eres } from '@utils'
+
+import { eres } from './utils/eres'
 
 export class Iniciador {
   private clientId: string
@@ -29,12 +30,12 @@ export class Iniciador {
       case 'staging':
         return 'https://consumer.staging.inic.dev/v1'
       default:
-        break
+        throw new Error('Insert enviroment variable.')
     }
   }
 
   async auth() {
-    const [error, response] = await eres(
+    const [error, response] = await eres<any>(
       fetch(`${this.environment}/auth`, {
         method: 'POST',
         body: JSON.stringify({
@@ -52,7 +53,7 @@ export class Iniciador {
   }
 
   async authInterface() {
-    const [error, response] = await eres(
+    const [error, response] = await eres<any>(
       fetch(`${this.environment}/auth/interface`, {
         method: 'POST',
         body: JSON.stringify({
@@ -72,7 +73,7 @@ export class Iniciador {
   payment({ accessToken }: { accessToken: string }) {
     return {
       get: async () => {
-        const [error, response] = await eres(
+        const [error, response] = await eres<any>(
           fetch(`${this.environment}/payment`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -87,7 +88,7 @@ export class Iniciador {
         return data
       },
       status: async () => {
-        const [error, response] = await eres(
+        const [error, response] = await eres<any>(
           fetch(`${this.environment}/paymen/statust`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -100,10 +101,6 @@ export class Iniciador {
         const data = await response.json()
 
         return data
-      },
-      listen: (callback: (event: any) => void) => {
-        // Lógica para ouvir eventos relacionados ao pagamento e chamar o callback fornecido
-        // Implemente a lógica de eventos usando WebSockets ou outra tecnologia adequada
       },
     }
   }

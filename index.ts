@@ -1,1 +1,0 @@
-export { Iniciador } from './src'
