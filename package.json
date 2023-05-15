@@ -1,7 +1,6 @@
 {
   "name": "iniciador-sdk-node",
   "version": "1.0.0",
-  "license": "MIT",
   "scripts": {
     "prepare": "npm run build",
     "build": "tsc"
@@ -13,7 +12,6 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "axios": "^1.4.0",
-    "ts-pattern": "^4.3.0"
+    "node-fetch": "^3.3.1"
   }
 }

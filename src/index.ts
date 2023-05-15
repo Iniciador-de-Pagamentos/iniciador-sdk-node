@@ -1,7 +1,5 @@
-import axios from 'axios'
-
+import fetch from 'node-fetch'
 import { eres } from '@utils'
-import { match } from 'ts-pattern'
 
 export class Iniciador {
   private clientId: string
@@ -23,70 +21,85 @@ export class Iniciador {
   }
 
   private setEnviroment = (environment: string) => {
-    return match(environment)
-      .with('dev', () => 'https://consumer.dev.inic.dev/v1')
-      .with('sandbox', () => 'https://consumer.sandbox.inic.dev/v1')
-      .with('staging', () => 'https://consumer.staging.inic.dev/v1')
-      .run()
+    switch (environment) {
+      case 'dev':
+        return 'https://consumer.dev.inic.dev/v1'
+      case 'sandbox':
+        return 'https://consumer.sandbox.inic.dev/v1'
+      case 'staging':
+        return 'https://consumer.staging.inic.dev/v1'
+      default:
+        break
+    }
   }
 
   async auth() {
     const [error, response] = await eres(
-      axios.post(`${this.environment}/auth`, {
-        clientId: this.clientId,
-        clientSecret: this.clientSecret,
+      fetch(`${this.environment}/auth`, {
+        method: 'POST',
+        body: JSON.stringify({
+          clientId: this.clientId,
+          clientSecret: this.clientSecret,
+        }),
       }),
     )
 
     if (error) throw new Error('Falha na autenticação')
 
-    return response.data
+    const data = await response.json()
+
+    return data
   }
 
   async authInterface() {
     const [error, response] = await eres(
-      axios.post(`${this.environment}/auth/interface`, {
-        clientId: this.clientId,
-        clientSecret: this.clientSecret,
+      fetch(`${this.environment}/auth/interface`, {
+        method: 'POST',
+        body: JSON.stringify({
+          clientId: this.clientId,
+          clientSecret: this.clientSecret,
+        }),
       }),
     )
 
     if (error) throw new Error('Falha na autenticação')
 
-    return response.data
+    const data = await response.json()
+
+    return data
   }
 
   payment({ accessToken }: { accessToken: string }) {
     return {
       get: async () => {
-        try {
-          // Lógica para obter informações de pagamento
-          const response = await axios.get(`${this.environment}/payment`, {
+        const [error, response] = await eres(
+          fetch(`${this.environment}/payment`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
-          })
+          }),
+        )
 
-          return response.data
-        } catch (error) {
-          // Trate o erro adequadamente
-          throw new Error('Falha ao obter informações de pagamento')
-        }
+        if (error) throw new Error('Falha ao obter informações de pagamento')
+
+        const data = await response.json()
+
+        return data
       },
       status: async () => {
-        try {
-          // Lógica para obter o status do pagamento
-          const response = await axios.get(`${this.environment}/payment/status`, {
+        const [error, response] = await eres(
+          fetch(`${this.environment}/paymen/statust`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
-          })
+          }),
+        )
 
-          return response.data
-        } catch (error) {
-          // Trate o erro adequadamente
-          throw new Error('Falha ao obter o status do pagamento')
-        }
+        if (error) throw new Error('Falha ao obter o status do pagamento')
+
+        const data = await response.json()
+
+        return data
       },
       listen: (callback: (event: any) => void) => {
         // Lógica para ouvir eventos relacionados ao pagamento e chamar o callback fornecido

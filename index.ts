@@ -1,1 +1,1 @@
-export { Iniciador } from './sdk-node'
+export { Iniciador } from './src'
