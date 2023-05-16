@@ -1,6 +1,7 @@
 import fetch, { Response } from 'node-fetch'
 import { AuthInterfaceOutput, AuthOutput } from './types/auth'
 import { PaymentInitiationPayload, PaymentStatusPayload } from './types/payments'
+import { ParticipantFilterDto, ParticipantFilterOutputDto } from './types/participants'
 
 export class Iniciador {
   private clientId: string
@@ -24,7 +25,13 @@ export class Iniciador {
     this.paymentPayload = {}
   }
 
-  private setEnviroment = (environment: string) => {
+  /**
+   * @function setEnviroment
+   * @description set enviroment url.
+   * @param {string} environment - informed enviroment.
+   * @returns {string}
+   */
+  private setEnviroment = (environment: string): string => {
     switch (environment) {
       case 'dev':
         return 'https://consumer.dev.inic.dev/v1'
@@ -37,11 +44,22 @@ export class Iniciador {
     }
   }
 
-  private handleResponse<T>(response: Response) {
+  /**
+   * @function handleResponse
+   * @description handle fetch responses.
+   * @param {Response} response - response from fetch.
+   * @returns {Promise<T>}
+   */
+  private handleResponse<T>(response: Response): Promise<T> {
     return response.json() as Promise<T>
   }
 
-  async auth() {
+  /**
+   * @function auth
+   * @description handles the authentication process by making a POST request to the auth endpoint.
+   * @returns {Promise<AuthOutput>} A promise that resolves to the auth output.
+   */
+  async auth(): Promise<AuthOutput> {
     return fetch(`${this.environment}/auth`, {
       method: 'POST',
       body: JSON.stringify({
@@ -52,44 +70,105 @@ export class Iniciador {
     }).then((response) => this.handleResponse<AuthOutput>(response))
   }
 
-  async authInterface(payment?: PaymentInitiationPayload) {
+  /**
+   * @function authInterface
+   * @description handles the authentication process by making a POST request to the auth interface endpoint.
+   * @returns {Promise<AuthInterfaceOutput>} A promise that resolves to the auth interface output.
+   */
+  async authInterface(): Promise<AuthInterfaceOutput> {
     return fetch(`${this.environment}/auth/interface`, {
       method: 'POST',
       body: JSON.stringify({
         clientId: this.clientId,
         clientSecret: this.clientSecret,
-        payment,
       }),
       headers: { 'Content-Type': 'application/json' },
     }).then((response) => this.handleResponse<AuthInterfaceOutput>(response))
   }
 
-  async participants({ accessToken }: { accessToken: string }) {
-    return fetch(`${this.environment}/participants`, {
+  /**
+   * @function participants
+   * @description Retrieves participants by making a GET request to the participants endpoint.
+   * @param {Object} params - Parameters for participant retrieval.
+   * @param {string} params.accessToken - The access token used for authorization.
+   * @param {ParticipantFilterDto} [params.filters] - (Optional) Filters to apply to the participant retrieval.
+   * @returns {Promise<ParticipantFilterOutputDto>} A promise that resolves to the filtered participant output.
+   */
+  async participants({
+    accessToken,
+    filters,
+  }: {
+    accessToken: string
+    filters?: ParticipantFilterDto
+  }): Promise<ParticipantFilterOutputDto> {
+    const filterParams: Record<string, string> = {}
+
+    if (filters)
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined) {
+          filterParams[key] = value.toString()
+        }
+      })
+
+    const queryString = new URLSearchParams(filterParams).toString()
+    const url = `${this.environment}/participants?${queryString}`
+
+    return fetch(url, {
       headers: { Authorization: `Bearer ${accessToken}` },
-    }).then((response) => this.handleResponse<AuthInterfaceOutput>(response))
+    }).then((response) => this.handleResponse<ParticipantFilterOutputDto>(response))
   }
 
+  /**
+   * @function save
+   * @description Saves the payment initiation payload.
+   * @param {PaymentInitiationPayload} [payment] - (Optional) The payment initiation payload to save.
+   */
   save(payment?: PaymentInitiationPayload) {
     this.paymentPayload = Object.assign(this.paymentPayload, payment)
   }
 
+  /**
+   * @function payment
+   * @description Provides methods for payment-related operations.
+   * @param {Object} params - Parameters for the payment methods.
+   * @param {string} params.accessToken - The access token used for authorization.
+   * @returns {Object} An object containing payment methods.
+   */
   payment({ accessToken }: { accessToken: string }) {
     return {
-      get: async (paymentId: string) => {
+      /**
+       * @function get
+       * @description Retrieves the payment with the specified payment ID.
+       * @param {string} paymentId - The ID of the payment to retrieve.
+       * @returns {Promise<PaymentInitiationPayload>} A promise that resolves to the payment initiation payload.
+       */
+      get: async (paymentId: string): Promise<PaymentInitiationPayload> => {
         return fetch(`${this.environment}/payments/${paymentId}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         }).then((response) => this.handleResponse<PaymentInitiationPayload>(response))
       },
-      status: async (paymentId: string) => {
+      /**
+       * @function status
+       * @description Retrieves the status of the payment with the specified payment ID.
+       * @param {string} paymentId - The ID of the payment to retrieve the status for.
+       * @returns {Promise<PaymentStatusPayload>} A promise that resolves to the payment status payload.
+       */
+      status: async (paymentId: string): Promise<PaymentStatusPayload> => {
         return fetch(`${this.environment}/payments/${paymentId}/status`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         }).then((response) => this.handleResponse<PaymentStatusPayload>(response))
       },
-      send: async () => {
+      /**
+       * @function send
+       * @description Sends the payment using the stored payment payload.
+       * @throws {Error} Throws an error if the payment payload is empty.
+       * @returns {Promise<PaymentStatusPayload>} A promise that resolves to the payment status payload.
+       */
+      send: async (): Promise<PaymentStatusPayload> => {
         const isPaymentPayloadEmpty = Object.keys(this.paymentPayload).length === 0
-        if (isPaymentPayloadEmpty)
+        if (isPaymentPayloadEmpty) {
           throw new Error('Something went wrong, try to fill up payment payload with save method.')
+        }
 
         return fetch(`${this.environment}/payments`, {
           method: 'POST',

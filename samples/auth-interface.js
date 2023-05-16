@@ -1,34 +1,21 @@
 import { Iniciador } from '../dist/index.js'
 
+// Instantiate the Iniciador object with the provided configurations
 const iniciador = new Iniciador({
-  clientId: 'c82700f8-f0bf-4cce-9068-a2fd6991ee9b',
-  clientSecret: 'sB#C8ybhJEN63RjBz6Kpd8NUywHkKzXN$d&Zr3j4',
+  clientId: 'clientId',
+  clientSecret: 'clientSecret',
   environment: 'dev',
 })
 
-const { accessToken, paymentId } = await iniciador.authInterface({
-  participantId: 'c8f0bf49-4744-4933-8960-7add6e590841',
-  redirectURL: 'https://app.sandbox.inic.dev/pag-receipt',
-  user: {
-    name: 'John Doe',
-    taxId: '76109277673',
-  },
-  amount: 133300,
-})
+/* 
+  Authenticate and obtain the accessToken, interfaceURL and paymentId 
+    - Use interfaceURL to complete the payment flow
+    - Use the accessToken and paymentId to verify the payment data
+*/
+const { accessToken, interfaceURL, paymentId } = await iniciador.authInterface()
 
+// Get the details of a specific payment by ID
 const payment = await iniciador.payment({ accessToken }).get(paymentId)
-const paymentStatus = await iniciador.payment({ accessToken }).status(paymentId)
-const savePayment = iniciador.save({
-  externalId: 'externalId',
-  participantId: 'c8f0bf49-4744-4933-8960-7add6e590841',
-  redirectURL: 'https://app.sandbox.inic.dev/pag-receipt',
-  user: {
-    name: 'John Doe',
-    taxId: '76109277673',
-  },
-  amount: 133300,
-  method: 'PIX_INIC',
-})
-const paymentInitiation = await iniciador.payment({ accessToken }).send()
 
-console.log('Payment: ', paymentInitiation)
+// Get the status of a specific payment by ID
+const paymentStatus = await iniciador.payment({ accessToken }).status(paymentId)
