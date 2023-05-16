@@ -136,7 +136,11 @@ export class Iniciador {
    * @param {string} params.accessToken - The access token used for authorization.
    * @returns {Object} An object containing payment methods.
    */
-  payment({ accessToken }: { accessToken: string }) {
+  payment({ accessToken }: { accessToken: string }): {
+    get: (paymentId: string) => Promise<PaymentInitiationPayload>
+    status: (paymentId: string) => Promise<PaymentStatusPayload>
+    send: () => Promise<PaymentStatusPayload>
+  } {
     return {
       /**
        * @function get
