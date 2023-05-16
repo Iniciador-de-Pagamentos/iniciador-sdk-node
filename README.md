@@ -103,4 +103,4 @@ If you have any questions or need assistance regarding our SDK, please don't hes
 
 We also highly appreciate any feedback you may have. Your thoughts and suggestions are valuable to us as we continuously improve our SDK and services. We welcome your input and encourage you to share your thoughts with us.
 
-Feel free to contact us by sending an email to contato@iniciador.com.br. We look forward to hearing from you and assisting you with your integration.
+Feel free to contact us by sending an email to suporte@iniciador.com.br. We look forward to hearing from you and assisting you with your integration.
