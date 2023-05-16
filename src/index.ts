@@ -39,6 +39,8 @@ export class Iniciador {
         return 'https://consumer.sandbox.inic.dev/v1'
       case 'staging':
         return 'https://consumer.staging.inic.dev/v1'
+      case 'prod':
+        return 'https://consumer.u4c-iniciador.com.br/v1'
       default:
         throw new Error('Something went wrong, verify enviroment value.')
     }
