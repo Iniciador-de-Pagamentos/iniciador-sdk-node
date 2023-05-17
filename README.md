@@ -14,7 +14,7 @@ The Iniciador SDK is a Node.js library that provides a convenient way to interac
 To install the Iniciador SDK, run the following command:
 
 ```bash
-npm install iniciador-node-sdk
+npm install iniciador-sdk
 ```
 
 ## 3. Usage
@@ -31,23 +31,50 @@ const iniciador = new Iniciador({
 })
 ```
 
-### 3.1 Authentication
+### 3.1 Whitelabel
 
-To authenticate with the Iniciador API, use the `auth` or `authInterface` method:
+#### 3.1.1 Authentication
 
-3.1.1 `auth`
-
-```javascript
-const { accessToken } = await iniciador.auth()
-```
-
-3.1.2 `authInterface`
+To authenticate with the Iniciador Whitelabel, use the `authInterface` method:
 
 ```javascript
 const { accessToken, interfaceURL, paymentId } = await iniciador.authInterface()
 ```
 
-### 3.2 Participants
+- Use interfaceURL to complete the payment flow
+- Use the accessToken and paymentId to verify the payment data
+
+#### 3.1.2 Payments
+
+To use payments services with the Iniciador Whitelabel, use the `payments` method:
+
+##### 3.1.2.1 `get`
+
+to get the payment details use `get` method
+
+```javascript
+const payment = await iniciador.payment({ accessToken }).get(paymentInitiation.id)
+```
+
+##### 3.1.2.2 `status`
+
+to get the payment status details use `status` method
+
+```javascript
+const paymentStatus = await iniciador.payment({ accessToken }).status(paymentInitiation.id)
+```
+
+### 3.2 API Only
+
+#### 3.2.1 Authentication
+
+To authenticate with the Iniciador API, use the `auth` method:
+
+```javascript
+const { accessToken } = await iniciador.auth()
+```
+
+#### 3.2.2 Participants
 
 To get participants with the Iniciador API, use the `participants` method:
 
@@ -55,11 +82,12 @@ To get participants with the Iniciador API, use the `participants` method:
 const participants = await iniciador.participants({ accessToken })
 ```
 
-### 3.3 Payments
+#### 3.2.3 Payments
 
 To use payments services with the Iniciador API, use the `payments` method:
 
-3.3.1 `save`
+##### 3.2.3.1 `save`
+
 to save the payment with the specified details use `save` method
 
 ```javascript
@@ -76,21 +104,23 @@ const savePayment = iniciador.save({
 })
 ```
 
-3.3.2 `send`
+##### 3.2.3.2 `send`
+
 to send the payment use `send` method
 
 ```javascript
 const paymentInitiation = await iniciador.payment({ accessToken }).send()
 ```
 
-3.3.2 `get`
+##### 3.2.3.3 `get`
+
 to get the payment details use `get` method
 
 ```javascript
 const payment = await iniciador.payment({ accessToken }).get(paymentInitiation.id)
 ```
 
-3.3.3 `status`
+##### 3.2.3.4 `status`
 to get the payment status details use `status` method
 
 ```javascript
