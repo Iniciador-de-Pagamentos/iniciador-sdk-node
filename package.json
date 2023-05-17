@@ -1,14 +1,28 @@
 {
-  "name": "iniciador-sdk-node",
+  "name": "iniciador-sdk",
+  "description": "SDK to streamline payment initiation integrations with Node.js.",
   "version": "1.0.0",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "prepare": "npm run build",
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Iniciador-de-Pagamentos/iniciador-sdk-node.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "payments",
+    "initiation",
+    "pix",
+    "open finance"
+  ],
   "devDependencies": {
     "@types/jest": "^29.5.1",
     "eslint-config-prettier": "^8.8.0",
