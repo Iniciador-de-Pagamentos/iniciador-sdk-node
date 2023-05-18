@@ -120,7 +120,7 @@ describe('Iniciador', () => {
             taxId: 'taxId',
           },
           amount: 133300,
-          method: 'PIX_INIC',
+          method: 'PIX_MANU_AUTO',
         }
 
         nock('https://consumer.dev.inic.dev/v1')

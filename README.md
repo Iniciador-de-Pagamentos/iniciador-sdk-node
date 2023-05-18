@@ -100,7 +100,7 @@ const savePayment = iniciador.save({
     taxId: 'taxId',
   },
   amount: 133300,
-  method: 'PIX_INIC',
+  method: 'PIX_MANU_AUTO',
 })
 ```
 
@@ -121,6 +121,7 @@ const payment = await iniciador.payment({ accessToken }).get(paymentInitiation.i
 ```
 
 ##### 3.2.3.4 `status`
+
 to get the payment status details use `status` method
 
 ```javascript
