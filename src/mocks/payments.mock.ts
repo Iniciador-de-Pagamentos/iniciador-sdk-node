@@ -12,7 +12,7 @@ export const PaymentInitiationMock = {
   amount: 135500,
   fee: 0,
   date: '2022-07-19T20:02:10.859Z',
-  method: 'PIX_INIC',
+  method: 'PIX_MANU_AUTO',
   description: null,
   debtorAccountPixKey: null,
   debtorAccountTaxId: null,

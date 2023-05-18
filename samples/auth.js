@@ -23,7 +23,7 @@ const savePayment = iniciador.save({
     taxId: 'taxId',
   },
   amount: 133300,
-  method: 'PIX_INIC',
+  method: 'PIX_MANU_AUTO',
 })
 
 // Sending the payment initiation and obtaining the result
