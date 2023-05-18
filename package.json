@@ -1,5 +1,5 @@
 {
-  "name": "iniciador-sdk",
+  "name": "@iniciador/iniciador-sdk",
   "description": "SDK to streamline payment initiation integrations with Node.js.",
   "version": "1.0.0",
   "type": "module",
@@ -36,6 +36,9 @@
   },
   "dependencies": {
     "node-fetch": "^3.3.1"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "jest": {
     "clearMocks": true,
