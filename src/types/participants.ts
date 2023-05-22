@@ -2,7 +2,7 @@ interface ParticipantsPayload {
   id: string
   slug: string
   name: string
-  avatar: Date
+  avatar: string
 }
 
 interface Cursor {
