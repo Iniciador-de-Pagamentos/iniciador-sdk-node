@@ -139,7 +139,7 @@ export class Iniciador {
   payment({ accessToken }: { accessToken: string }): {
     get: (paymentId: string) => Promise<PaymentInitiationPayload>
     status: (paymentId: string) => Promise<PaymentStatusPayload>
-    send: () => Promise<PaymentStatusPayload>
+    send: () => Promise<PaymentInitiationPayload>
   } {
     return {
       /**
@@ -168,9 +168,9 @@ export class Iniciador {
        * @function send
        * @description Sends the payment using the stored payment payload.
        * @throws {Error} Throws an error if the payment payload is empty.
-       * @returns {Promise<PaymentStatusPayload>} A promise that resolves to the payment status payload.
+       * @returns {Promise<PaymentInitiationPayload>} A promise that resolves to the payment status payload.
        */
-      send: async (): Promise<PaymentStatusPayload> => {
+      send: async (): Promise<PaymentInitiationPayload> => {
         const isPaymentPayloadEmpty = Object.keys(this.paymentPayload).length === 0
         if (isPaymentPayloadEmpty) {
           throw new Error('Something went wrong, try to fill up payment payload with save method.')
@@ -180,7 +180,7 @@ export class Iniciador {
           method: 'POST',
           body: JSON.stringify(this.paymentPayload),
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
-        }).then((response) => this.handleResponse<PaymentStatusPayload>(response))
+        }).then((response) => this.handleResponse<PaymentInitiationPayload>(response))
       },
     }
   }
