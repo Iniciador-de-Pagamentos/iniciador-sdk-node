@@ -1,7 +1,7 @@
 {
   "name": "@iniciador/iniciador-sdk",
   "description": "SDK to streamline payment initiation integrations with Node.js.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

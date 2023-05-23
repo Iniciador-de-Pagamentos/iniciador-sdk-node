@@ -15,7 +15,7 @@ const iniciador = new Iniciador({
 const { accessToken, interfaceURL, paymentId } = await iniciador.authInterface()
 
 // Get the details of a specific payment by ID
-const payment = await iniciador.payment({ accessToken }).get(paymentId)
+const payment = await iniciador.payment({ accessToken }).get()
 
 // Get the status of a specific payment by ID
-const paymentStatus = await iniciador.payment({ accessToken }).status(paymentId)
+const paymentStatus = await iniciador.payment({ accessToken }).status()

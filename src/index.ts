@@ -57,6 +57,33 @@ export class Iniciador {
   }
 
   /**
+   * @function extractJwtData
+   * @description extracts the data from a JWT token.
+   * @param {string} token - The JWT token.
+   * @returns {object | Error} - An object containing the header and payload data from the token.
+   * @throws {Error} - Throws an error if the token is invalid or cannot be parsed.
+   */
+  private extractJwtData(token: string): any {
+    const parts = token.split('.')
+    if (parts.length !== 3) {
+      // JWT token should have three parts separated by periods
+      throw new Error('Something went wrong, verify your access token.')
+    }
+
+    try {
+      const header = JSON.parse(Buffer.from(parts[0] as string, 'base64').toString('utf-8'))
+      const { payload } = JSON.parse(Buffer.from(parts[1] as string, 'base64').toString('utf-8'))
+      return {
+        header,
+        payload,
+      }
+    } catch (error) {
+      // Error decoding the token or parsing JSON
+      throw new Error('Something went wrong, verify your access token.')
+    }
+  }
+
+  /**
    * @function auth
    * @description handles the authentication process by making a POST request to the auth endpoint.
    * @returns {Promise<AuthOutput>} A promise that resolves to the auth output.
@@ -137,18 +164,21 @@ export class Iniciador {
    * @returns {Object} An object containing payment methods.
    */
   payment({ accessToken }: { accessToken: string }): {
-    get: (paymentId: string) => Promise<PaymentInitiationPayload>
-    status: (paymentId: string) => Promise<PaymentStatusPayload>
+    get: () => Promise<PaymentInitiationPayload>
+    status: () => Promise<PaymentStatusPayload>
     send: () => Promise<PaymentInitiationPayload>
   } {
+    const {
+      payload: { id: paymentId },
+    } = this.extractJwtData(accessToken)
+
     return {
       /**
        * @function get
        * @description Retrieves the payment with the specified payment ID.
-       * @param {string} paymentId - The ID of the payment to retrieve.
        * @returns {Promise<PaymentInitiationPayload>} A promise that resolves to the payment initiation payload.
        */
-      get: async (paymentId: string): Promise<PaymentInitiationPayload> => {
+      get: async (): Promise<PaymentInitiationPayload> => {
         return fetch(`${this.environment}/payments/${paymentId}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         }).then((response) => this.handleResponse<PaymentInitiationPayload>(response))
@@ -156,10 +186,9 @@ export class Iniciador {
       /**
        * @function status
        * @description Retrieves the status of the payment with the specified payment ID.
-       * @param {string} paymentId - The ID of the payment to retrieve the status for.
        * @returns {Promise<PaymentStatusPayload>} A promise that resolves to the payment status payload.
        */
-      status: async (paymentId: string): Promise<PaymentStatusPayload> => {
+      status: async (): Promise<PaymentStatusPayload> => {
         return fetch(`${this.environment}/payments/${paymentId}/status`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         }).then((response) => this.handleResponse<PaymentStatusPayload>(response))

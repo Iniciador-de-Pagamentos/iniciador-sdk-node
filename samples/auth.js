@@ -6,7 +6,6 @@ const iniciador = new Iniciador({
   clientSecret: 'clientSecret',
   environment: 'dev',
 })
-
 // Authentication and obtaining the accessToken
 const { accessToken } = await iniciador.auth()
 
@@ -30,7 +29,7 @@ const savePayment = iniciador.save({
 const paymentInitiation = await iniciador.payment({ accessToken }).send()
 
 // Get the details of a specific payment by ID
-const payment = await iniciador.payment({ accessToken }).get(paymentInitiation.id)
+const payment = await iniciador.payment({ accessToken }).get()
 
 // Get the status of a specific payment by ID
-const paymentStatus = await iniciador.payment({ accessToken }).status(paymentInitiation.id)
+const paymentStatus = await iniciador.payment({ accessToken }).status()

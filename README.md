@@ -53,7 +53,7 @@ To use payments services with the Iniciador Whitelabel, use the `payments` metho
 to get the payment details use `get` method
 
 ```javascript
-const payment = await iniciador.payment({ accessToken }).get(paymentInitiation.id)
+const payment = await iniciador.payment({ accessToken }).get()
 ```
 
 ##### 3.1.2.2 `status`
@@ -61,7 +61,7 @@ const payment = await iniciador.payment({ accessToken }).get(paymentInitiation.i
 to get the payment status details use `status` method
 
 ```javascript
-const paymentStatus = await iniciador.payment({ accessToken }).status(paymentInitiation.id)
+const paymentStatus = await iniciador.payment({ accessToken }).status()
 ```
 
 ### 3.2 API Only
@@ -117,7 +117,7 @@ const paymentInitiation = await iniciador.payment({ accessToken }).send()
 to get the payment details use `get` method
 
 ```javascript
-const payment = await iniciador.payment({ accessToken }).get(paymentInitiation.id)
+const payment = await iniciador.payment({ accessToken }).get()
 ```
 
 ##### 3.2.3.4 `status`
@@ -125,7 +125,7 @@ const payment = await iniciador.payment({ accessToken }).get(paymentInitiation.i
 to get the payment status details use `status` method
 
 ```javascript
-const paymentStatus = await iniciador.payment({ accessToken }).status(paymentInitiation.id)
+const paymentStatus = await iniciador.payment({ accessToken }).status()
 ```
 
 ## Help and Feedback
