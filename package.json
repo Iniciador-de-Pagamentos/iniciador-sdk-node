@@ -1,0 +1,60 @@
+{
+  "name": "@iniciador/iniciador-sdk",
+  "description": "SDK to streamline payment initiation integrations with Node.js.",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "rm -rf dist && tsc",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Iniciador-de-Pagamentos/iniciador-sdk-node.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "payments",
+    "initiation",
+    "pix",
+    "open finance"
+  ],
+  "devDependencies": {
+    "@types/jest": "^29.5.1",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "jest": "^29.5.0",
+    "nock": "^13.3.1",
+    "prettier": "^2.8.8",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "jest": {
+    "clearMocks": true,
+    "preset": "ts-jest/presets/default-esm",
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "transform": {
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "useESM": true,
+          "diagnostics": false
+        }
+      ]
+    },
+    "testEnvironment": "jest-environment-node"
+  }
+}
