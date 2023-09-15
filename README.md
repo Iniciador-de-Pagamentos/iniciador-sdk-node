@@ -14,7 +14,7 @@ The Iniciador SDK is a Node.js library that provides a convenient way to interac
 To install the Iniciador SDK, run the following command:
 
 ```bash
-npm install iniciador-sdk
+npm install @iniciador/iniciador-sdk
 ```
 
 ## 3. Usage
@@ -22,7 +22,7 @@ npm install iniciador-sdk
 To use the Iniciador SDK, import the necessary modules and create an instance of the `Iniciador` class:
 
 ```javascript
-const { Iniciador } = require('iniciador-sdk')
+const { Iniciador } = require('@iniciador/iniciador-sdk')
 
 const iniciador = new Iniciador({
   clientId: 'your-client-id',
