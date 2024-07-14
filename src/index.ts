@@ -1,12 +1,11 @@
-import fetch, { Response } from 'node-fetch'
 import { AuthInterfaceOutput, AuthOutput } from './types/auth'
-import { PaymentInitiationPayload, PaymentStatusPayload } from './types/payments'
 import { ParticipantFilterDto, ParticipantFilterOutputDto } from './types/participants'
+import { PaymentInitiationPayload, PaymentStatusPayload } from './types/payments'
 
 export class Iniciador {
   private clientId: string
   private clientSecret: string
-  private environment: string
+  private environmentURL: string
 
   private paymentPayload: object | PaymentInitiationPayload
 
@@ -17,11 +16,11 @@ export class Iniciador {
   }: {
     clientId: string
     clientSecret: string
-    environment: 'dev' | 'sandbox' | 'staging'
+    environment: 'dev' | 'sandbox' | 'staging' | 'prod'
   }) {
     this.clientId = clientId
     this.clientSecret = clientSecret
-    this.environment = this.setEnviroment(environment)
+    this.environmentURL = this.setEnviromentURL(environment)
     this.paymentPayload = {}
   }
 
@@ -31,7 +30,7 @@ export class Iniciador {
    * @param {string} environment - informed enviroment.
    * @returns {string}
    */
-  private setEnviroment = (environment: string): string => {
+  private setEnviromentURL = (environment: string): string => {
     switch (environment) {
       case 'dev':
         return 'https://consumer.dev.inic.dev/v1'
@@ -40,7 +39,7 @@ export class Iniciador {
       case 'staging':
         return 'https://consumer.staging.inic.dev/v1'
       case 'prod':
-        return 'https://consumer.u4c-iniciador.com.br/v1'
+        return 'https://consumer.iniciador.com.br/v1'
       default:
         throw new Error('Something went wrong, verify enviroment value.')
     }
@@ -89,7 +88,7 @@ export class Iniciador {
    * @returns {Promise<AuthOutput>} A promise that resolves to the auth output.
    */
   async auth(): Promise<AuthOutput> {
-    return fetch(`${this.environment}/auth`, {
+    return fetch(`${this.environmentURL}/auth`, {
       method: 'POST',
       body: JSON.stringify({
         clientId: this.clientId,
@@ -105,7 +104,7 @@ export class Iniciador {
    * @returns {Promise<AuthInterfaceOutput>} A promise that resolves to the auth interface output.
    */
   async authInterface(): Promise<AuthInterfaceOutput> {
-    return fetch(`${this.environment}/auth/interface`, {
+    return fetch(`${this.environmentURL}/auth/interface`, {
       method: 'POST',
       body: JSON.stringify({
         clientId: this.clientId,
@@ -140,7 +139,7 @@ export class Iniciador {
       })
 
     const queryString = new URLSearchParams(filterParams).toString()
-    const url = `${this.environment}/participants?${queryString}`
+    const url = `${this.environmentURL}/participants?${queryString}`
 
     return fetch(url, {
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -179,7 +178,7 @@ export class Iniciador {
        * @returns {Promise<PaymentInitiationPayload>} A promise that resolves to the payment initiation payload.
        */
       get: async (): Promise<PaymentInitiationPayload> => {
-        return fetch(`${this.environment}/payments/${paymentId}`, {
+        return fetch(`${this.environmentURL}/payments/${paymentId}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         }).then((response) => this.handleResponse<PaymentInitiationPayload>(response))
       },
@@ -189,7 +188,7 @@ export class Iniciador {
        * @returns {Promise<PaymentStatusPayload>} A promise that resolves to the payment status payload.
        */
       status: async (): Promise<PaymentStatusPayload> => {
-        return fetch(`${this.environment}/payments/${paymentId}/status`, {
+        return fetch(`${this.environmentURL}/payments/${paymentId}/status`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         }).then((response) => this.handleResponse<PaymentStatusPayload>(response))
       },
@@ -205,10 +204,66 @@ export class Iniciador {
           throw new Error('Something went wrong, try to fill up payment payload with save method.')
         }
 
-        return fetch(`${this.environment}/payments`, {
+        return fetch(`${this.environmentURL}/payments`, {
           method: 'POST',
           body: JSON.stringify(this.paymentPayload),
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+        }).then((response) => this.handleResponse<PaymentInitiationPayload>(response))
+      },
+    }
+  }
+
+  /**
+   * @function directPayment
+   * @description Provides methods for direct payment-related operations.
+   * @returns {Object} An object containing payment methods.
+   */
+  directPayment(): {
+    get: (paymentId: string) => Promise<PaymentInitiationPayload>
+    status: (paymentId: string) => Promise<PaymentStatusPayload>
+    send: () => Promise<PaymentInitiationPayload>
+  } {
+    const basicAuth = `${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`
+
+    return {
+      /**
+       * @function get
+       * @description Retrieves the payment with the specified payment ID.
+       * @param {string} paymentId - Payment initiation ID.
+       * @returns {Promise<PaymentInitiationPayload>} A promise that resolves to the payment initiation payload.
+       */
+      get: async (paymentId: string): Promise<PaymentInitiationPayload> => {
+        return fetch(`${this.environmentURL}/direct/payments/${paymentId}`, {
+          headers: { Authorization: `Basic ${basicAuth}` },
+        }).then((response) => this.handleResponse<PaymentInitiationPayload>(response))
+      },
+      /**
+       * @function status
+       * @description Retrieves the status of the payment with the specified payment ID.
+       * @param {string} paymentId - Payment initiation ID.
+       * @returns {Promise<PaymentStatusPayload>} A promise that resolves to the payment status payload.
+       */
+      status: async (paymentId: string): Promise<PaymentStatusPayload> => {
+        return fetch(`${this.environmentURL}/direct/payments/${paymentId}/status`, {
+          headers: { Authorization: `Basic ${basicAuth}` },
+        }).then((response) => this.handleResponse<PaymentStatusPayload>(response))
+      },
+      /**
+       * @function send
+       * @description Sends the payment using the stored payment payload.
+       * @throws {Error} Throws an error if the payment payload is empty.
+       * @returns {Promise<PaymentInitiationPayload>} A promise that resolves to the payment status payload.
+       */
+      send: async (): Promise<PaymentInitiationPayload> => {
+        const isPaymentPayloadEmpty = Object.keys(this.paymentPayload).length === 0
+        if (isPaymentPayloadEmpty) {
+          throw new Error('Something went wrong, try to fill up payment payload with save method.')
+        }
+
+        return fetch(`${this.environmentURL}/direct/payments`, {
+          method: 'POST',
+          body: JSON.stringify(this.paymentPayload),
+          headers: { 'Content-Type': 'application/json', Authorization: `Basic ${basicAuth}` },
         }).then((response) => this.handleResponse<PaymentInitiationPayload>(response))
       },
     }
