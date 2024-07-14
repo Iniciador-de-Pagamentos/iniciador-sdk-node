@@ -134,11 +134,11 @@ const paymentStatus = await iniciador.payment({ accessToken }).status()
 
 ### 3.3 Direct Payment
 
-#### 3.2.1 Payments
+#### 3.3.1 Payments
 
 To use payments services with the Iniciador API, use the `payments` method:
 
-##### 3.2.3.1 `save`
+##### 3.3.1.1 `save`
 
 to save the payment with the specified details use `save` method
 
@@ -156,7 +156,7 @@ const savePayment = iniciador.save({
 })
 ```
 
-##### 3.2.3.2 `send`
+##### 3.3.1.2 `send`
 
 to send the payment use `send` method
 
@@ -164,7 +164,7 @@ to send the payment use `send` method
 const paymentInitiation = await iniciador.directPayment().send()
 ```
 
-##### 3.2.3.3 `get`
+##### 3.3.1.3 `get`
 
 to get the payment details use `get` method with paymentInitiationId as param
 
@@ -172,7 +172,7 @@ to get the payment details use `get` method with paymentInitiationId as param
 const payment = await iniciador.directPayment().get(paymentInitiationId)
 ```
 
-##### 3.2.3.4 `status`
+##### 3.3.1.4 `status`
 
 to get the payment status details use `status` method with paymentInitiationId as param
 
