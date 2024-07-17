@@ -21,6 +21,12 @@ beforeAll(() => {
     .reply(200, PaymentInitiationstatusMock)
     .post('/payments')
     .reply(201, PaymentInitiationMock)
+    .get('/direct/payments/paymentId')
+    .reply(200, PaymentInitiationMock)
+    .get('/direct/payments/paymentId/status')
+    .reply(200, PaymentInitiationstatusMock)
+    .post('/direct/payments')
+    .reply(201, PaymentInitiationMock)
 })
 
 afterAll(() => {
@@ -85,13 +91,13 @@ describe('Iniciador', () => {
 
   describe('payment', () => {
     it('should return a payment initiation', async () => {
-      const output = await iniciador.payment({ accessToken: 'yourAuthToken' }).get('paymentId')
+      const output = await iniciador.payment({ accessToken: 'yourAuthToken' }).get()
 
       expect(output).toEqual(PaymentInitiationMock)
     })
 
     it('should return payment initiation status', async () => {
-      const output = await iniciador.payment({ accessToken: 'yourAuthToken' }).status('paymentId')
+      const output = await iniciador.payment({ accessToken: 'yourAuthToken' }).status()
 
       expect(output).toEqual(PaymentInitiationstatusMock)
     })
@@ -133,6 +139,59 @@ describe('Iniciador', () => {
 
         expect(output).toEqual(PaymentInitiationMock)
       })
+    })
+  })
+
+  describe('directPayment', () => {
+    describe('create a payment initiation', () => {
+      it('should throw an error if paymentPayload was void', async () => {
+        iniciador['paymentPayload'] = {}
+
+        await iniciador
+          .directPayment()
+          .send()
+          .catch((error) => {
+            expect(error).toMatchObject({
+              message: 'Something went wrong, try to fill up payment payload with save method.',
+            })
+          })
+      })
+
+      it('should create a payment initiation', async () => {
+        const paymentInitiationData: any = {
+          externalId: 'externalId',
+          participantId: 'c8f0bf49-4744-4933-8960-7add6e590841',
+          redirectURL: 'https://app.sandbox.inic.dev/pag-receipt',
+          user: {
+            name: 'John Doe',
+            taxId: 'taxId',
+          },
+          amount: 133300,
+          method: 'PIX_MANU_AUTO',
+        }
+
+        nock('https://consumer.dev.inic.dev/v1')
+          .post('/payments', paymentInitiationData)
+          .reply(201, PaymentInitiationMock)
+
+        iniciador.save(paymentInitiationData)
+
+        const output = await iniciador.directPayment().send()
+
+        expect(output).toEqual(PaymentInitiationMock)
+      })
+    })
+
+    it('should return a payment initiation', async () => {
+      const output = await iniciador.directPayment().get('paymentInitiationId')
+
+      expect(output).toEqual(PaymentInitiationMock)
+    })
+
+    it('should return payment initiation status', async () => {
+      const output = await iniciador.directPayment().status('paymentInitiationId')
+
+      expect(output).toEqual(PaymentInitiationstatusMock)
     })
   })
 })

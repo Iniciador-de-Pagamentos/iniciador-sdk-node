@@ -2,15 +2,10 @@ import { Iniciador } from '../dist/index.js'
 
 // Instantiate the Iniciador object with the provided configurations
 const iniciador = new Iniciador({
-  clientId: 'clientId',
-  clientSecret: 'clientSecret',
+  clientId: '4c19e330-e5f9-4981-99eb-9d3a4a8cf429',
+  clientSecret: 'uwtG12!EAQQYA%99KgV*WVQ%qFU%4Cd9vWYsyv$g',
   environment: 'dev',
 })
-// Authentication and obtaining the accessToken
-const { accessToken } = await iniciador.auth()
-
-// Call to retrieve the list of participants
-const participants = await iniciador.participants({ accessToken })
 
 // Saving the payment with the specified details
 const savePayment = iniciador.save({
@@ -19,17 +14,17 @@ const savePayment = iniciador.save({
   redirectURL: 'https://app.sandbox.inic.dev/pag-receipt',
   user: {
     name: 'John Doe',
-    taxId: 'taxId',
+    taxId: '76109277673',
   },
   amount: 133300,
   method: 'PIX_MANU_AUTO',
 })
 
-// Sending the payment initiation and obtaining the result
-const paymentInitiation = await iniciador.payment({ accessToken }).send()
+// Sending the direct payment initiation and obtaining the result
+const paymentInitiation = await iniciador.directPayment().send()
 
 // Get the details of a specific payment by ID
-const payment = await iniciador.payment({ accessToken }).get()
+const payment = await iniciador.directPayment().get(paymentInitiation.id)
 
 // Get the status of a specific payment by ID
-const paymentStatus = await iniciador.payment({ accessToken }).status()
+const paymentStatus = await iniciador.directPayment().status(paymentInitiation.id)

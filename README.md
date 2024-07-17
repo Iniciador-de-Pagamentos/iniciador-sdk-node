@@ -17,6 +17,10 @@ To install the Iniciador SDK, run the following command:
 npm install @iniciador/iniciador-sdk
 ```
 
+### Node version support
+
+The latest version of iniciador-sdk supports all currently maintained Node versions, see [Node Release Schedule](https://github.com/nodejs/Release#release-schedule)
+
 ## 3. Usage
 
 To use the Iniciador SDK, import the necessary modules and create an instance of the `Iniciador` class:
@@ -126,6 +130,54 @@ to get the payment status details use `status` method
 
 ```javascript
 const paymentStatus = await iniciador.payment({ accessToken }).status()
+```
+
+### 3.3 Direct Payment
+
+#### 3.3.1 Payments
+
+To use payments services with the Iniciador API, use the `payments` method:
+
+##### 3.3.1.1 `save`
+
+to save the payment with the specified details use `save` method
+
+```javascript
+const savePayment = iniciador.save({
+  externalId: 'externalId',
+  participantId: 'c8f0bf49-4744-4933-8960-7add6e590841',
+  redirectURL: 'https://app.sandbox.inic.dev/pag-receipt',
+  user: {
+    name: 'John Doe',
+    taxId: 'taxId',
+  },
+  amount: 133300,
+  method: 'PIX_MANU_AUTO',
+})
+```
+
+##### 3.3.1.2 `send`
+
+to send the payment use `send` method
+
+```javascript
+const paymentInitiation = await iniciador.directPayment().send()
+```
+
+##### 3.3.1.3 `get`
+
+to get the payment details use `get` method with paymentInitiationId as param
+
+```javascript
+const payment = await iniciador.directPayment().get(paymentInitiationId)
+```
+
+##### 3.3.1.4 `status`
+
+to get the payment status details use `status` method with paymentInitiationId as param
+
+```javascript
+const paymentStatus = await iniciador.directPayment({ accessToken }).status(paymentInitiationId)
 ```
 
 ## Help and Feedback
